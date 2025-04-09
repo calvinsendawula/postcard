@@ -14,10 +14,10 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="min-h-screen h-full w-full flex flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-        <div className="container flex h-16 items-center justify-between max-w-7xl mx-auto px-4 md:px-6">
+        <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
           <div className="flex items-center">
             <a className="flex items-center space-x-2" href="/">
               <span className="font-bold text-xl">Postcard</span>
@@ -34,8 +34,8 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 w-full">
-        <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
-          <div className="grid gap-8">
+        <div className="container mx-auto px-4 md:px-6 py-8">
+          <div className="grid gap-8 max-w-4xl mx-auto">
             <SearchArea />
             <TextInputArea />
             <EntryList />
@@ -45,7 +45,7 @@ function App() {
 
       {/* Footer */}
       <footer className="w-full border-t py-6">
-        <div className="container mx-auto px-4 md:px-6 max-w-7xl flex flex-col items-center md:flex-row md:justify-between">
+        <div className="container mx-auto px-4 md:px-6 flex flex-col items-center md:flex-row md:justify-between">
           <p className="text-center text-sm text-muted-foreground">
             Built with ❤️
           </p>

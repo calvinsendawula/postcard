@@ -27,7 +27,6 @@ export function LoginPage() {
     try {
       const { error } = await signInWithPassword(email, password);
       if (error) throw error;
-      // Navigation happens automatically via AuthProvider listening to state changes
     } catch (err) {
       setError(err.message || 'Failed to sign in');
     } finally {
@@ -42,7 +41,7 @@ export function LoginPage() {
     try {
       const { error } = await signUp(email, password);
       if (error) throw error;
-      alert('Check your email for the confirmation link!'); // Supabase sends a confirmation email by default
+      alert('Check your email for the confirmation link!');
     } catch (err) {
       setError(err.message || 'Failed to sign up');
     } finally {
@@ -51,24 +50,22 @@ export function LoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background p-4">
-      <div className="absolute top-6 right-6 z-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background">
+      <div className="absolute top-4 right-4 z-10">
         <ModeToggle />
       </div>
       
-      <div className="w-full max-w-md">
-        <Card className="shadow-xl border">
-          <CardHeader className="space-y-3 pb-6">
-            <CardTitle className="text-3xl font-bold text-center">Welcome to Postcard</CardTitle>
-            <CardDescription className="text-center text-base">
-              Sign in or create an account to continue
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-6 pb-6 px-6">
-            <form id="login-form" onSubmit={handleLogin}>
-              <div className="grid w-full items-center gap-6">
-                <div className="flex flex-col space-y-2.5">
+      <div className="flex w-full flex-col justify-center space-y-6 sm:w-[500px] px-8">
+        <div className="flex flex-col space-y-2 text-center mb-4">
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to Postcard</h1>
+          <p className="text-sm text-muted-foreground">Sign in or create an account to continue</p>
+        </div>
+        
+        <Card className="shadow-lg">
+          <CardContent className="pt-6">
+            <form id="login-form" onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-5">
+                <div className="space-y-2">
                   <Label htmlFor="email" className="text-base font-medium">
                     Email
                   </Label>
@@ -80,11 +77,11 @@ export function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={loading}
-                    className="h-12 text-base px-4"
+                    className="h-12 text-base"
                   />
                 </div>
                 
-                <div className="flex flex-col space-y-2.5">
+                <div className="space-y-2">
                   <Label htmlFor="password" className="text-base font-medium">
                     Password
                   </Label>
@@ -96,20 +93,22 @@ export function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="h-12 text-base px-4"
+                    className="h-12 text-base"
                   />
                 </div>
                 
                 {error && (
-                  <p className="text-sm text-destructive text-center font-medium mt-2 p-2 bg-destructive/10 rounded-md">
-                    {error}
-                  </p>
+                  <div className="bg-destructive/10 rounded-md p-3">
+                    <p className="text-sm text-destructive text-center font-medium">
+                      {error}
+                    </p>
+                  </div>
                 )}
               </div>
             </form>
           </CardContent>
           
-          <CardFooter className="flex flex-col gap-4 px-6 pb-8 pt-2">
+          <CardFooter className="flex flex-col gap-4 p-6 pt-2">
             <Button 
               className="w-full h-12 text-base font-medium" 
               type="submit" 
