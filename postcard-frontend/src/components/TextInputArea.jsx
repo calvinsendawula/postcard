@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/lib/supabaseClient";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 
 export function TextInputArea() {
   const [text, setText] = useState('');
@@ -33,9 +33,7 @@ export function TextInputArea() {
       console.log('Inserted entry:', data);
       setText(''); // Clear the textarea after successful submission
 
-      // TODO: Trigger AI processing pipeline here
-      // This would likely involve calling a Supabase Edge Function or another backend service
-      // For now, we just store the raw text.
+      // Webhook handles the AI processing now
 
     } catch (err) {
       console.error('Error submitting entry:', err);

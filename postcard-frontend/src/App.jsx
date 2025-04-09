@@ -1,9 +1,9 @@
 import { useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
-import { Button } from "@/components/ui/button";
-import { TextInputArea } from "@/components/TextInputArea";
-import { EntryList } from "@/components/EntryList";
-import { SearchArea } from "@/components/SearchArea";
+import { Button } from "./components/ui/button";
+import { TextInputArea } from "./components/TextInputArea";
+import { EntryList } from "./components/EntryList";
+import { SearchArea } from "./components/SearchArea";
 
 function App() {
   const { session, user, signOut } = useAuth();

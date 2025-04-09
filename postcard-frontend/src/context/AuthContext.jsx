@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '@/lib/supabaseClient'; // Adjusted path using alias
+import { supabase } from '../lib/supabaseClient'; // Relative path
 
 const AuthContext = createContext(null);
 
