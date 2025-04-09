@@ -1,144 +1,230 @@
-import React, { useState } from 'react';
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { useAuth } from '../context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Loader2, SearchIcon, Bot, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { useState, useRef } from 'react';
+import { Search, History, Loader2 } from 'lucide-react';
+import { supabase } from '../client';
 
 export function SearchArea() {
-  const { user } = useAuth();
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [result, setResult] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const searchInputRef = useRef(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!query.trim() || !user) return;
+    if (!searchQuery.trim()) return;
 
     setIsLoading(true);
-    setError('');
-    setResult(null);
+    setSearchResults([]);
+    setErrorMessage('');
 
     try {
-      // Using full Vercel URL for clarity, ensure this matches your deployment
-      const response = await fetch('https://postcard-git-main-calvins-projects-5a83f765.vercel.app/api/query', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          query: query,
-          userId: user.id 
-        }),
-      });
+      const { data, error } = await supabase
+        .from('entries')
+        .select('id, content, created_at')
+        .textSearch('content', searchQuery, { type: 'websearch' })
+        .order('created_at', { ascending: false });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setResult(data.answer); // Store the synthesized answer
-
-    } catch (err) {
-      console.error('Search failed:', err);
-      setError(err.message || 'Failed to perform search.');
-      setResult(null);
+      if (error) throw error;
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error('Error searching entries:', error);
+      setErrorMessage('Failed to search entries. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="relative">
-      <div className="flex items-center gap-2 mb-6">
-        <Bot size={20} className="text-primary" />
-        <h2 className="text-xl font-semibold">Ask Your Journal</h2>
-      </div>
-      
-      <div className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm overflow-hidden">
-        <form onSubmit={handleSearch} className="p-4">
-          <div className="flex w-full gap-3">
-            <div className="relative flex-grow">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="e.g. 'What did I work on last week?'"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                disabled={isLoading}
-                className="pl-9 h-10 bg-background/50 rounded-lg border-input/30 focus:border-primary/50"
-              />
-            </div>
-            <Button 
-              type="submit" 
-              disabled={isLoading || !query.trim()}
-              className="rounded-lg h-10 px-4 flex gap-2 items-center bg-primary text-primary-foreground shrink-0 shadow-sm"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              <span>{isLoading ? 'Asking...' : 'Ask'}</span>
-            </Button>
-          </div>
-        </form>
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setErrorMessage('');
+    searchInputRef.current?.focus();
+  };
 
-        {isLoading && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="px-4 pb-4"
-          >
-            <div className="w-full rounded-lg bg-muted/40 border border-border/30 p-6 flex flex-col items-center justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse"></div>
-                <Loader2 className="h-8 w-8 animate-spin text-primary relative z-10 mb-3" />
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">Searching your journal entries...</p>
+  // Inline styles
+  const styles = {
+    container: {
+      width: '100%',
+      position: 'relative'
+    },
+    searchForm: {
+      width: '100%',
+      position: 'relative'
+    },
+    searchInput: {
+      width: '100%',
+      height: '44px',
+      background: 'rgba(255, 255, 255, 0.05)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '8px',
+      padding: '0 16px 0 42px',
+      fontSize: '15px',
+      color: 'white',
+      transition: 'all 0.2s ease',
+      outline: 'none'
+    },
+    searchIcon: {
+      position: 'absolute',
+      left: '14px',
+      top: '12px',
+      color: 'rgba(255, 255, 255, 0.5)',
+      pointerEvents: 'none'
+    },
+    searchButton: {
+      position: 'absolute',
+      right: '8px',
+      top: '8px',
+      height: '28px',
+      padding: '0 12px',
+      fontSize: '13px',
+      borderRadius: '6px',
+      background: '#7c3aed',
+      color: 'white',
+      border: 'none',
+      fontWeight: '500',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
+    },
+    resultsContainer: {
+      marginTop: '12px'
+    },
+    loadingIndicator: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px 0',
+      color: 'rgba(255, 255, 255, 0.7)',
+      gap: '8px'
+    },
+    errorMessage: {
+      padding: '12px',
+      borderRadius: '8px',
+      background: 'rgba(239, 68, 68, 0.1)',
+      border: '1px solid rgba(239, 68, 68, 0.2)',
+      color: 'rgb(239, 68, 68)',
+      fontSize: '14px',
+      marginTop: '12px'
+    },
+    resultsTitle: {
+      fontSize: '15px',
+      fontWeight: '500',
+      marginBottom: '8px',
+      color: 'rgba(255, 255, 255, 0.8)'
+    },
+    resultsList: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    resultItem: {
+      padding: '12px',
+      borderRadius: '8px',
+      background: 'rgba(255, 255, 255, 0.03)',
+      border: '1px solid rgba(255, 255, 255, 0.06)',
+      transition: 'all 0.2s ease',
+      cursor: 'pointer'
+    },
+    resultContent: {
+      fontSize: '14px',
+      lineHeight: '1.5',
+      color: 'rgba(255, 255, 255, 0.8)',
+      marginBottom: '8px'
+    },
+    resultDate: {
+      fontSize: '12px',
+      color: 'rgba(255, 255, 255, 0.4)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px'
+    },
+    emptyMessage: {
+      textAlign: 'center',
+      padding: '24px 0',
+      color: 'rgba(255, 255, 255, 0.4)',
+      fontSize: '14px'
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      <form onSubmit={handleSearch} style={styles.searchForm}>
+        <Search size={18} style={styles.searchIcon} />
+        <input
+          ref={searchInputRef}
+          type="text"
+          placeholder="Search your journal..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={styles.searchInput}
+        />
+        <button 
+          type="submit" 
+          disabled={isLoading || !searchQuery.trim()} 
+          style={{
+            ...styles.searchButton,
+            opacity: isLoading || !searchQuery.trim() ? 0.6 : 1,
+            cursor: isLoading || !searchQuery.trim() ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              <span>Searching</span>
+            </>
+          ) : (
+            <span>Search</span>
+          )}
+        </button>
+      </form>
+
+      {/* Search Results */}
+      {(isLoading || searchResults.length > 0 || errorMessage) && (
+        <div style={styles.resultsContainer}>
+          {isLoading && (
+            <div style={styles.loadingIndicator}>
+              <Loader2 size={18} className="animate-spin" />
+              <span>Searching your journal...</span>
             </div>
-          </motion.div>
-        )}
-        
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="px-4 pb-4"
-          >
-            <Alert variant="destructive" className="border rounded-lg shadow-sm">
-              <AlertTitle className="flex items-center gap-2 font-medium">
-                <span>Search Error</span>
-              </AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-        
-        {result && !isLoading && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="px-4 pb-4"
-          >
-            <div className="w-full rounded-lg bg-background border border-border p-6">
-              <div className="flex items-center gap-2 mb-2">
-                <Bot size={16} className="text-primary" />
-                <h3 className="font-semibold text-sm">Journal Response</h3>
+          )}
+
+          {errorMessage && <div style={styles.errorMessage}>{errorMessage}</div>}
+
+          {!isLoading && searchResults.length > 0 && (
+            <>
+              <div style={styles.resultsTitle}>
+                Found {searchResults.length} {searchResults.length === 1 ? 'entry' : 'entries'}
               </div>
-              <div className="pl-6 border-l-2 border-primary/20 py-1">
-                <div className="prose dark:prose-invert text-foreground/90 max-w-none prose-p:leading-relaxed prose-p:my-3">
-                  {result}
-                </div>
+              <div style={styles.resultsList}>
+                {searchResults.map((entry) => (
+                  <div key={entry.id} style={styles.resultItem}>
+                    <div style={styles.resultContent}>
+                      {entry.content.length > 200
+                        ? `${entry.content.substring(0, 200)}...`
+                        : entry.content}
+                    </div>
+                    <div style={styles.resultDate}>
+                      <History size={12} />
+                      {new Date(entry.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
+            </>
+          )}
+
+          {!isLoading && searchResults.length === 0 && searchQuery && !errorMessage && (
+            <div style={styles.emptyMessage}>
+              No entries found for "{searchQuery}"
             </div>
-          </motion.div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 } 

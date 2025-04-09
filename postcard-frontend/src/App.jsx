@@ -1,111 +1,279 @@
-import { useAuth } from './context/AuthContext';
+import { useState, useEffect } from 'react';
+import { EntryList } from './components/EntryList';
+import { EntryForm } from './components/EntryForm';
+import { supabase } from './client';
 import { LoginPage } from './pages/LoginPage';
-import { Button } from "./components/ui/button";
 import { TextInputArea } from "./components/TextInputArea";
-import { EntryList } from "./components/EntryList";
 import { SearchArea } from "./components/SearchArea";
 import { ModeToggle } from "./components/ModeToggle";
-import { motion } from "framer-motion";
-import { LogOut, ChevronRight } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 function App() {
-  const { session, user, signOut } = useAuth();
+  const [entries, setEntries] = useState([]);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!session) {
-    return <LoginPage />;
+  useEffect(() => {
+    // Check for active session
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    checkSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleEntryClick = (entry) => {
+    setSelectedEntry(entry);
+  };
+
+  const handleEntryAdded = (newEntry) => {
+    setEntries([newEntry, ...entries]);
+  };
+
+  const handleEntriesUpdate = (updatedEntries) => {
+    setEntries(updatedEntries);
+    // If the selected entry was deleted, clear the selection
+    if (selectedEntry && !updatedEntries.find(e => e.id === selectedEntry.id)) {
+      setSelectedEntry(null);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  // Simple inline styles for the app UI
+  const styles = {
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+      width: '100%',
+      background: '#1a1a1a',
+      color: 'white'
+    },
+    header: {
+      position: 'sticky',
+      top: 0,
+      zIndex: 40,
+      width: '100%',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      background: 'rgba(26, 26, 26, 0.8)',
+      backdropFilter: 'blur(10px)'
+    },
+    headerContent: {
+      display: 'flex',
+      height: '64px',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      maxWidth: '1000px',
+      margin: '0 auto',
+      padding: '0 20px'
+    },
+    logo: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      textDecoration: 'none'
+    },
+    logoIcon: {
+      width: '36px',
+      height: '36px',
+      borderRadius: '8px',
+      background: '#7c3aed',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: '18px'
+    },
+    logoText: {
+      fontWeight: '600',
+      fontSize: '18px',
+      color: 'white'
+    },
+    nav: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px'
+    },
+    userEmail: {
+      fontSize: '14px',
+      color: 'rgba(255, 255, 255, 0.6)',
+      padding: '6px 12px',
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '20px',
+      border: '1px solid rgba(255, 255, 255, 0.1)'
+    },
+    signOutButton: {
+      background: 'transparent',
+      border: 'none',
+      color: 'rgba(255, 255, 255, 0.6)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '8px',
+      borderRadius: '50%'
+    },
+    main: {
+      flex: 1,
+      width: '100%',
+      position: 'relative',
+      zIndex: 1
+    },
+    mainContent: {
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '32px 20px'
+    },
+    mainContentInner: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '32px'
+    },
+    footer: {
+      width: '100%',
+      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      padding: '24px 0',
+      marginTop: '32px',
+      background: 'rgba(26, 26, 26, 0.5)',
+      backdropFilter: 'blur(5px)'
+    },
+    footerContent: {
+      maxWidth: '1000px',
+      margin: '0 auto',
+      padding: '0 20px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '16px',
+      textAlign: 'center',
+      color: 'rgba(255, 255, 255, 0.4)',
+      fontSize: '14px'
+    },
+    journalHeading: {
+      fontSize: '20px',
+      fontWeight: '600',
+      marginBottom: '16px',
+      color: 'white'
+    }
+  };
+
+  if (loading) {
+    return <div style={styles.loadingContainer}>Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <div style={styles.headerContent}>
+            <a href="/" style={styles.logo}>
+              <div style={styles.logoIcon}>P</div>
+              <span style={styles.logoText}>Postcard</span>
+            </a>
+            
+            <nav style={styles.nav}>
+              <div style={styles.userEmail}>
+                {user?.email}
+              </div>
+              
+              <ModeToggle />
+              
+              <button 
+                onClick={signInWithGoogle} 
+                style={styles.signOutButton}
+                title="Sign In"
+              >
+                Sign In
+              </button>
+            </nav>
+          </div>
+        </header>
+      </div>
+    );
   }
 
   return (
-    <div className="h-full w-full min-h-screen flex flex-col bg-background/95">
+    <div style={styles.container}>
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
-        <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
-          <div className="flex items-center">
-            <a className="flex items-center space-x-3 group" href="/">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center overflow-hidden shadow-sm transition-all">
-                <span className="text-primary-foreground font-bold text-xl">P</span>
-              </div>
-              <span className="font-semibold text-xl tracking-tight group-hover:text-primary transition-colors">
-                Postcard
-              </span>
-            </a>
-          </div>
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
+          <a href="/" style={styles.logo}>
+            <div style={styles.logoIcon}>P</div>
+            <span style={styles.logoText}>Postcard</span>
+          </a>
           
-          <nav className="flex items-center gap-5">
-            <div className="flex items-center text-sm text-muted-foreground px-3 py-1.5 rounded-full bg-muted/50 border border-border/30">
-              <span className="hidden sm:inline-block max-w-[180px] truncate">{user?.email}</span>
+          <nav style={styles.nav}>
+            <div style={styles.userEmail}>
+              {user?.email}
             </div>
             
             <ModeToggle />
             
-            <Button 
+            <button 
               onClick={signOut} 
-              variant="ghost" 
-              size="icon"
-              className="rounded-full text-muted-foreground hover:text-foreground"
+              style={styles.signOutButton}
               title="Sign Out"
             >
               <LogOut size={18} />
-            </Button>
+            </button>
           </nav>
         </div>
       </header>
 
-      {/* Background pattern */}
-      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none bg-grid-pattern"></div>
-
       {/* Main Content */}
-      <main className="flex-1 w-full relative z-10">
-        <div className="container mx-auto px-4 md:px-6 py-8">
-          <div className="max-w-4xl mx-auto">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="grid gap-8"
-            >
-              <SearchArea />
-              
-              <TextInputArea />
-              
-              <div className="relative">
-                <div className="flex items-center mb-6">
-                  <h2 className="text-xl font-semibold mr-auto">Your Journal</h2>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">View all</span>
-                    <ChevronRight size={16} className="text-muted-foreground" />
-                  </div>
-                </div>
-                <EntryList />
-              </div>
-            </motion.div>
+      <main style={styles.main}>
+        <div style={styles.mainContent}>
+          <div style={styles.mainContentInner}>
+            <SearchArea />
+            
+            <TextInputArea />
+            
+            <div>
+              <h2 style={styles.journalHeading}>Your Journal</h2>
+              <EntryList 
+                onEntryClick={handleEntryClick} 
+                onUpdate={handleEntriesUpdate}
+              />
+            </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-border/40 py-6 mt-8 relative z-10 bg-background/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-7 h-7 rounded-md bg-primary/80 flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">P</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Built with AI-powered journaling
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Postcard
-            </p>
-          </div>
+      <footer style={styles.footer}>
+        <div style={styles.footerContent}>
+          <p>
+            Built with AI-powered journaling
+          </p>
+          <p>
+            © {new Date().getFullYear()} Postcard
+          </p>
         </div>
       </footer>
     </div>

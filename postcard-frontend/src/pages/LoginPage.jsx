@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
 import { ModeToggle } from "../components/ModeToggle";
-import { motion } from "framer-motion";
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -42,164 +38,204 @@ export function LoginPage() {
     }
   };
 
-  return (
-    <div className="relative min-h-screen w-full bg-gradient-to-br from-background to-muted/30 flex items-center justify-center px-4 py-12">
-      {/* Animated background */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full opacity-50 bg-grid-pattern"></div>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-primary/5 dark:bg-primary/10"
-            style={{
-              width: `${Math.random() * 400 + 100}px`,
-              height: `${Math.random() * 400 + 100}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 50 - 25],
-              y: [0, Math.random() * 50 - 25],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
+  // Simple CSS styles directly in the JSX
+  const styles = {
+    container: {
+      width: '100%',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#1a1a1a',
+      position: 'relative'
+    },
+    themeToggle: {
+      position: 'absolute',
+      top: '20px',
+      right: '20px',
+      zIndex: 10
+    },
+    card: {
+      width: '360px',
+      maxWidth: '90%',
+      backgroundColor: '#242424',
+      borderRadius: '12px',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+      overflow: 'hidden',
+      border: '1px solid rgba(255, 255, 255, 0.1)'
+    },
+    header: {
+      padding: '24px',
+      textAlign: 'center'
+    },
+    logo: {
+      width: '50px',
+      height: '50px',
+      margin: '0 auto 16px',
+      backgroundColor: '#7c3aed',
+      borderRadius: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      fontSize: '24px',
+      fontWeight: 'bold'
+    },
+    title: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+      color: 'white',
+      margin: '0 0 8px'
+    },
+    subtitle: {
+      fontSize: '14px',
+      color: 'rgba(255, 255, 255, 0.6)',
+      margin: 0
+    },
+    form: {
+      padding: '0 24px 24px'
+    },
+    formGroup: {
+      marginBottom: '16px'
+    },
+    label: {
+      display: 'block',
+      marginBottom: '8px',
+      fontSize: '14px',
+      fontWeight: '500',
+      color: 'rgba(255, 255, 255, 0.8)'
+    },
+    input: {
+      width: '100%',
+      padding: '12px 16px',
+      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '8px',
+      fontSize: '14px',
+      color: 'white',
+      outline: 'none',
+      transition: 'border-color 0.2s'
+    },
+    error: {
+      padding: '12px',
+      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+      color: '#f87171',
+      borderRadius: '8px',
+      fontSize: '13px',
+      marginBottom: '16px'
+    },
+    buttonPrimary: {
+      width: '100%',
+      padding: '12px',
+      backgroundColor: '#7c3aed',
+      border: 'none',
+      borderRadius: '8px',
+      color: 'white',
+      fontSize: '14px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      marginBottom: '12px',
+      transition: 'background-color 0.2s'
+    },
+    buttonSecondary: {
+      width: '100%',
+      padding: '12px',
+      backgroundColor: 'transparent',
+      border: '1px solid rgba(255, 255, 255, 0.15)',
+      borderRadius: '8px',
+      color: 'white',
+      fontSize: '14px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
+    },
+    footer: {
+      padding: '12px 24px',
+      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+      textAlign: 'center'
+    },
+    footerText: {
+      fontSize: '12px',
+      color: 'rgba(255, 255, 255, 0.4)',
+      margin: 0
+    }
+  };
 
-      {/* Theme toggle positioned absolutely */}
-      <div className="absolute top-5 right-5 z-50">
+  return (
+    <div style={styles.container}>
+      {/* Theme toggle */}
+      <div style={styles.themeToggle}>
         <ModeToggle />
       </div>
 
-      {/* Main content area */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        {/* Logo and welcome text */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-block mb-4"
-          >
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <span className="text-primary-foreground font-bold text-2xl">P</span>
-            </div>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-4xl font-bold tracking-tight mb-2"
-          >
-            Welcome to Postcard
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="text-muted-foreground"
-          >
-            Sign in or create an account to continue
-          </motion.p>
+      {/* Login card */}
+      <div style={styles.card}>
+        <div style={styles.header}>
+          <div style={styles.logo}>P</div>
+          <h1 style={styles.title}>Welcome to Postcard</h1>
+          <p style={styles.subtitle}>Sign in or create an account to continue</p>
         </div>
 
-        {/* Login form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="bg-card/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border border-border/50"
-        >
-          <div className="p-8">
-            <form id="login-form" onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium inline-block">
-                    Email address
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="h-12 rounded-xl bg-background/50 border-input/50 focus:border-primary focus:ring focus:ring-primary/20"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium inline-block">
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="h-12 rounded-xl bg-background/50 border-input/50 focus:border-primary focus:ring focus:ring-primary/20"
-                  />
-                </div>
-                
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="bg-destructive/10 rounded-xl p-4"
-                  >
-                    <p className="text-sm text-destructive font-medium">
-                      {error}
-                    </p>
-                  </motion.div>
-                )}
-              </div>
+        <form onSubmit={handleLogin} style={styles.form}>
+          <div style={styles.formGroup}>
+            <label htmlFor="email" style={styles.label}>Email address</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              disabled={loading}
+              style={styles.input}
+            />
+          </div>
 
-              <div className="space-y-4 pt-2">
-                <Button 
-                  type="submit" 
-                  form="login-form"
-                  disabled={loading || !email || !password}
-                  className="w-full h-12 rounded-xl relative overflow-hidden group transition-all"
-                >
-                  <span className="relative z-10">
-                    {loading ? 'Processing...' : 'Sign In'}
-                  </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleSignUp} 
-                  disabled={loading || !email || !password}
-                  className="w-full h-12 rounded-xl border-primary/20 hover:bg-primary/5"
-                >
-                  {loading ? 'Processing...' : 'Create Account'}
-                </Button>
-              </div>
-            </form>
+          <div style={styles.formGroup}>
+            <label htmlFor="password" style={styles.label}>Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Your password"
+              required
+              disabled={loading}
+              style={styles.input}
+            />
           </div>
+
+          {error && (
+            <div style={styles.error}>
+              {error}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            disabled={loading || !email || !password}
+            style={styles.buttonPrimary}
+          >
+            {loading ? 'Processing...' : 'Sign In'}
+          </button>
           
-          <div className="bg-muted/50 p-4 text-center">
-            <p className="text-xs text-muted-foreground">
-              By continuing, you agree to our Terms of Service and Privacy Policy
-            </p>
-          </div>
-        </motion.div>
-      </motion.div>
+          <button 
+            type="button"
+            onClick={handleSignUp}
+            disabled={loading || !email || !password}
+            style={styles.buttonSecondary}
+          >
+            {loading ? 'Processing...' : 'Create Account'}
+          </button>
+        </form>
+
+        <div style={styles.footer}>
+          <p style={styles.footerText}>
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
+      </div>
     </div>
   );
 } 
