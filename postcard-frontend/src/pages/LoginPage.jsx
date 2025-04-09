@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ModeToggle } from "../components/ModeToggle";
 import { Loader2 } from 'lucide-react';
 
 export function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
   const { signInWithPassword, signUp } = useAuth();
 
   const handleLogin = async (e) => {

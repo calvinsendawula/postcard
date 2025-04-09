@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { EntryList } from './components/EntryList';
 import { EntryForm } from './components/EntryForm';
 import { supabase } from './lib/supabaseClient';
@@ -9,13 +9,13 @@ import { ModeToggle } from "./components/ModeToggle";
 import { LogOut, Loader2 } from "lucide-react";
 
 function App() {
-  const [entries, setEntries] = useState([]);
-  const [selectedEntry, setSelectedEntry] = useState(null);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = React.useState([]);
+  const [selectedEntry, setSelectedEntry] = React.useState(null);
+  const [user, setUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   // Add animation to head
-  useEffect(() => {
+  React.useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.innerHTML = `
       @keyframes spin {
@@ -33,7 +33,7 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Check for active session
     const checkSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();

@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react';
+import React from 'react';
 import { Search, History, Loader2, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
 
 export function SearchArea() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const searchInputRef = useRef(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const searchInputRef = React.useRef(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();

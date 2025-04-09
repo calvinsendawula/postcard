@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import { motion } from "framer-motion";
 import { PenLine, SendIcon, Loader2 } from "lucide-react";
 
 export function TextInputArea() {
-  const [text, setText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [text, setText] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
   const { user } = useAuth();
 
   const handleSubmit = async (e) => {
