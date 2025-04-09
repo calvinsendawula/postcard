@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ModeToggle } from "../components/ModeToggle";
+import { Loader2 } from 'lucide-react';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -38,7 +39,7 @@ export function LoginPage() {
     }
   };
 
-  // Simple CSS styles directly in the JSX
+  // Updated modern CSS styles
   const styles = {
     container: {
       width: '100%',
@@ -46,7 +47,7 @@ export function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#1a1a1a',
+      backgroundColor: 'var(--background, #1a1a1a)',
       position: 'relative'
     },
     themeToggle: {
@@ -56,111 +57,162 @@ export function LoginPage() {
       zIndex: 10
     },
     card: {
-      width: '360px',
+      width: '400px',
       maxWidth: '90%',
-      backgroundColor: '#242424',
-      borderRadius: '12px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-      overflow: 'hidden',
-      border: '1px solid rgba(255, 255, 255, 0.1)'
+      backgroundColor: 'var(--card-background, #242424)',
+      borderRadius: '16px',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+      overflow: 'hidden'
     },
     header: {
-      padding: '24px',
-      textAlign: 'center'
+      padding: '32px 28px 24px',
+      textAlign: 'center',
+      backgroundImage: 'linear-gradient(to bottom, rgba(124, 58, 237, 0.1), transparent)'
     },
     logo: {
-      width: '50px',
-      height: '50px',
-      margin: '0 auto 16px',
-      backgroundColor: '#7c3aed',
-      borderRadius: '10px',
+      width: '60px',
+      height: '60px',
+      margin: '0 auto 20px',
+      background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+      borderRadius: '12px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       color: 'white',
-      fontSize: '24px',
-      fontWeight: 'bold'
+      fontSize: '28px',
+      fontWeight: 'bold',
+      boxShadow: '0 8px 16px rgba(109, 40, 217, 0.25)'
     },
     title: {
-      fontSize: '24px',
+      fontSize: '26px',
       fontWeight: 'bold',
-      color: 'white',
+      color: 'var(--text-primary, white)',
       margin: '0 0 8px'
     },
     subtitle: {
-      fontSize: '14px',
-      color: 'rgba(255, 255, 255, 0.6)',
+      fontSize: '15px',
+      color: 'var(--text-secondary, rgba(255, 255, 255, 0.7))',
       margin: 0
     },
     form: {
-      padding: '0 24px 24px'
+      padding: '0 28px 28px'
     },
     formGroup: {
-      marginBottom: '16px'
+      marginBottom: '20px'
     },
     label: {
       display: 'block',
       marginBottom: '8px',
       fontSize: '14px',
       fontWeight: '500',
-      color: 'rgba(255, 255, 255, 0.8)'
+      color: 'var(--text-secondary, rgba(255, 255, 255, 0.8))'
     },
     input: {
       width: '100%',
-      padding: '12px 16px',
+      padding: '14px 16px',
       backgroundColor: 'rgba(255, 255, 255, 0.06)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
-      borderRadius: '8px',
-      fontSize: '14px',
-      color: 'white',
+      borderRadius: '10px',
+      fontSize: '15px',
+      color: 'var(--text-primary, white)',
       outline: 'none',
-      transition: 'border-color 0.2s'
+      transition: 'all 0.2s ease'
+    },
+    inputFocus: {
+      borderColor: 'rgba(124, 58, 237, 0.5)',
+      boxShadow: '0 0 0 2px rgba(124, 58, 237, 0.15)'
     },
     error: {
-      padding: '12px',
+      padding: '12px 16px',
       backgroundColor: 'rgba(239, 68, 68, 0.1)',
       color: '#f87171',
-      borderRadius: '8px',
-      fontSize: '13px',
-      marginBottom: '16px'
+      borderRadius: '10px',
+      fontSize: '14px',
+      marginBottom: '20px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      border: '1px solid rgba(239, 68, 68, 0.15)'
     },
     buttonPrimary: {
       width: '100%',
-      padding: '12px',
+      padding: '14px',
       backgroundColor: '#7c3aed',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '10px',
       color: 'white',
-      fontSize: '14px',
+      fontSize: '15px',
       fontWeight: '500',
       cursor: 'pointer',
-      marginBottom: '12px',
-      transition: 'background-color 0.2s'
+      marginBottom: '14px',
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    },
+    buttonPrimaryHover: {
+      backgroundColor: '#6d28d9'
+    },
+    buttonPrimaryDisabled: {
+      backgroundColor: 'rgba(124, 58, 237, 0.5)',
+      cursor: 'not-allowed'
     },
     buttonSecondary: {
       width: '100%',
-      padding: '12px',
+      padding: '14px',
       backgroundColor: 'transparent',
       border: '1px solid rgba(255, 255, 255, 0.15)',
-      borderRadius: '8px',
-      color: 'white',
-      fontSize: '14px',
+      borderRadius: '10px',
+      color: 'var(--text-primary, white)',
+      fontSize: '15px',
       fontWeight: '500',
       cursor: 'pointer',
-      transition: 'background-color 0.2s'
+      transition: 'all 0.2s ease'
+    },
+    buttonSecondaryHover: {
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      borderColor: 'rgba(255, 255, 255, 0.25)'
+    },
+    buttonSecondaryDisabled: {
+      opacity: 0.5,
+      cursor: 'not-allowed'
     },
     footer: {
-      padding: '12px 24px',
-      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+      padding: '16px 28px',
+      borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+      backgroundColor: 'rgba(255, 255, 255, 0.02)',
       textAlign: 'center'
     },
     footerText: {
-      fontSize: '12px',
-      color: 'rgba(255, 255, 255, 0.4)',
+      fontSize: '13px',
+      color: 'var(--text-tertiary, rgba(255, 255, 255, 0.5))',
       margin: 0
+    },
+    loadingAnimation: {
+      animation: 'spin 1s linear infinite'
+    },
+    '@keyframes spin': {
+      '0%': { transform: 'rotate(0deg)' },
+      '100%': { transform: 'rotate(360deg)' }
     }
   };
+
+  // Add this style definition to head for the animation
+  React.useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   return (
     <div style={styles.container}>
@@ -189,6 +241,14 @@ export function LoginPage() {
               required
               disabled={loading}
               style={styles.input}
+              onFocus={(e) => {
+                e.target.style.borderColor = styles.inputFocus.borderColor;
+                e.target.style.boxShadow = styles.inputFocus.boxShadow;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = styles.input.borderColor;
+                e.target.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -203,11 +263,24 @@ export function LoginPage() {
               required
               disabled={loading}
               style={styles.input}
+              onFocus={(e) => {
+                e.target.style.borderColor = styles.inputFocus.borderColor;
+                e.target.style.boxShadow = styles.inputFocus.boxShadow;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = styles.input.borderColor;
+                e.target.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           {error && (
             <div style={styles.error}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
               {error}
             </div>
           )}
@@ -215,16 +288,45 @@ export function LoginPage() {
           <button 
             type="submit" 
             disabled={loading || !email || !password}
-            style={styles.buttonPrimary}
+            style={{
+              ...styles.buttonPrimary,
+              ...(loading || !email || !password ? styles.buttonPrimaryDisabled : {})
+            }}
+            onMouseEnter={(e) => {
+              if (!loading && email && password) {
+                e.target.style.backgroundColor = styles.buttonPrimaryHover.backgroundColor;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading && email && password) {
+                e.target.style.backgroundColor = styles.buttonPrimary.backgroundColor;
+              }
+            }}
           >
-            {loading ? 'Processing...' : 'Sign In'}
+            {loading && <Loader2 size={18} className="loader-icon" style={{ animation: 'spin 1s linear infinite' }} />}
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
           
           <button 
             type="button"
             onClick={handleSignUp}
             disabled={loading || !email || !password}
-            style={styles.buttonSecondary}
+            style={{
+              ...styles.buttonSecondary,
+              ...(loading || !email || !password ? styles.buttonSecondaryDisabled : {})
+            }}
+            onMouseEnter={(e) => {
+              if (!loading && email && password) {
+                e.target.style.backgroundColor = styles.buttonSecondaryHover.backgroundColor;
+                e.target.style.borderColor = styles.buttonSecondaryHover.borderColor;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading && email && password) {
+                e.target.style.backgroundColor = styles.buttonSecondary.backgroundColor;
+                e.target.style.borderColor = styles.buttonSecondary.borderColor;
+              }
+            }}
           >
             {loading ? 'Processing...' : 'Create Account'}
           </button>

@@ -6,13 +6,32 @@ import { LoginPage } from './pages/LoginPage';
 import { TextInputArea } from "./components/TextInputArea";
 import { SearchArea } from "./components/SearchArea";
 import { ModeToggle } from "./components/ModeToggle";
-import { LogOut } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 
 function App() {
   const [entries, setEntries] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Add animation to head
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .spin {
+        animation: spin 1s linear infinite;
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   useEffect(() => {
     // Check for active session
@@ -51,15 +70,6 @@ function App() {
     }
   };
 
-  const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-  };
-
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -73,6 +83,17 @@ function App() {
       width: '100%',
       background: '#1a1a1a',
       color: 'white'
+    },
+    loadingContainer: {
+      width: '100%',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#1a1a1a',
+      color: 'white',
+      flexDirection: 'column',
+      gap: '16px'
     },
     header: {
       position: 'sticky',
@@ -184,38 +205,16 @@ function App() {
   };
 
   if (loading) {
-    return <div style={styles.loadingContainer}>Loading...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
+        <div>Loading your journal...</div>
+      </div>
+    );
   }
 
   if (!user) {
-    return (
-      <div style={styles.container}>
-        <header style={styles.header}>
-          <div style={styles.headerContent}>
-            <a href="/" style={styles.logo}>
-              <div style={styles.logoIcon}>P</div>
-              <span style={styles.logoText}>Postcard</span>
-            </a>
-            
-            <nav style={styles.nav}>
-              <div style={styles.userEmail}>
-                {user?.email}
-              </div>
-              
-              <ModeToggle />
-              
-              <button 
-                onClick={signInWithGoogle} 
-                style={styles.signOutButton}
-                title="Sign In"
-              >
-                Sign In
-              </button>
-            </nav>
-          </div>
-        </header>
-      </div>
-    );
+    return <LoginPage />;
   }
 
   return (
