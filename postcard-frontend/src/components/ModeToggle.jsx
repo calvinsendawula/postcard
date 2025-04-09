@@ -1,6 +1,6 @@
 import React from "react"
 import { Moon, Sun } from "lucide-react"
-import { useTheme } from "../components/ThemeProvider" // Use the correct path
+import { useTheme } from "next-themes" // Correct import path
 
 import { Button } from "./ui/button"
 import {
