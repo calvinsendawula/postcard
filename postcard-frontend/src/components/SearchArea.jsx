@@ -4,6 +4,7 @@ import { Button } from "./ui/button"; // Relative path
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"; // Relative path
 import { useAuth } from '../context/AuthContext'; // Relative path
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"; // Relative path
+import { Loader2 } from "lucide-react"; // Import loader icon
 
 export function SearchArea() {
   const { user } = useAuth();
@@ -51,9 +52,9 @@ export function SearchArea() {
   };
 
   return (
-    <div className="mt-8 space-y-4">
-      <h2 className="text-xl font-semibold">Ask Your Knowledge Base</h2>
-      <form onSubmit={handleSearch} className="flex gap-2">
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold tracking-tight">Ask Your Knowledge Base</h2>
+      <form onSubmit={handleSearch} className="flex w-full items-center space-x-2">
         <Input
           type="text"
           placeholder="What did I work on last week?"
@@ -63,25 +64,32 @@ export function SearchArea() {
           className="flex-grow"
         />
         <Button type="submit" disabled={isLoading || !query.trim()}>
-          {isLoading ? 'Searching...' : 'Ask'}
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading ? 'Asking...' : 'Ask'}
         </Button>
       </form>
 
       {/* Display Results or Errors */} 
       {isLoading && (
-        <Alert><AlertDescription>Searching and synthesizing answer...</AlertDescription></Alert>
+         <div className="flex items-center justify-center pt-4">
+             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+         </div>
       )}
       {error && (
-        <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>
+        <Alert variant="destructive" className="mt-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
-      {result && (
-        <Card className="mt-4">
+      {result && !isLoading && (
+        <Card className="mt-4 bg-muted/30">
           <CardHeader>
-            <CardTitle className="text-lg">Answer</CardTitle>
+            <CardTitle className="text-lg font-medium">Answer</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Render the synthesized answer - consider markdown rendering later */}
-            <p className="whitespace-pre-wrap">{result}</p> 
+            <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap">
+                {result}
+            </div>
           </CardContent>
         </Card>
       )}

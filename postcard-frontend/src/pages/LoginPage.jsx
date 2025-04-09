@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import { ModeToggle } from "../components/ModeToggle";
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -50,10 +51,13 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-[350px]">
-        <CardHeader>
-          <CardTitle>Welcome to Postcard</CardTitle>
+    <div className="flex items-center justify-center min-h-screen bg-background px-4">
+       <div className="absolute top-4 right-4">
+          <ModeToggle />
+       </div>
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Welcome to Postcard</CardTitle>
           <CardDescription>Sign in or create an account to continue</CardDescription>
         </CardHeader>
         <CardContent>
@@ -83,15 +87,15 @@ export function LoginPage() {
                   disabled={loading}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive text-center">{error}</p>}
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={handleSignUp} disabled={loading || !email || !password}>
+        <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+          <Button className="w-full sm:w-auto" variant="outline" onClick={handleSignUp} disabled={loading || !email || !password}>
             {loading ? 'Processing...' : 'Sign Up'}
           </Button>
-          <Button type="submit" form="login-form" disabled={loading || !email || !password}>
+          <Button className="w-full sm:w-auto" type="submit" form="login-form" disabled={loading || !email || !password}>
             {loading ? 'Processing...' : 'Sign In'}
           </Button>
         </CardFooter>

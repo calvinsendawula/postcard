@@ -10,11 +10,11 @@ import {
   CardTitle,
 } from "./ui/card"; // Relative path
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"; // Relative path
+import { Loader2 } from "lucide-react"; // Import loader icon
 
 // import { Skeleton } from "./ui/skeleton"; // Relative path if used
 
 export function EntryList() {
-  // ... rest of component code remains the same ...
   const { user } = useAuth();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,12 +84,15 @@ export function EntryList() {
   }, [user]); // Re-run effect if user changes
 
   if (loading) {
-    return <Alert><AlertTitle>Loading entries...</AlertTitle></Alert>; 
-    // Replace with Skeleton loaders for better UX later
+    return (
+        <div className="flex items-center justify-center pt-8">
+             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+    );
   }
 
   if (error) {
-    return <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
+    return <Alert variant="destructive" className="mt-4"><AlertTitle>Error Loading Entries</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
   }
 
   if (entries.length === 0) {
@@ -97,22 +100,17 @@ export function EntryList() {
   }
 
   return (
-    <div className="space-y-4 mt-8">
-      <h2 className="text-xl font-semibold">Your Entries</h2>
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold tracking-tight">Your Entries</h2>
       {entries.map((entry) => (
-        <Card key={entry.id}>
-          <CardHeader>
-            {entry.processed_text ? (
-              <CardTitle className="text-lg">Processed Entry</CardTitle> 
-            ) : (
-              <CardTitle className="text-lg">Raw Entry</CardTitle>
-            )}
-            <CardDescription>{new Date(entry.created_at).toLocaleString()}</CardDescription>
+        <Card key={entry.id} className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardDescription className="text-xs">{new Date(entry.created_at).toLocaleString()}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap"> 
+            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
               {entry.processed_text || entry.raw_text}
-            </p>
+            </div>
           </CardContent>
         </Card>
       ))}
