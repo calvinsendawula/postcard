@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { EntryList } from './components/EntryList';
 import { EntryForm } from './components/EntryForm';
-import { supabase } from './client';
+import { supabase } from './lib/supabaseClient';
 import { LoginPage } from './pages/LoginPage';
 import { TextInputArea } from "./components/TextInputArea";
 import { SearchArea } from "./components/SearchArea";

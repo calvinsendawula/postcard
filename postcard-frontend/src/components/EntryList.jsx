@@ -68,139 +68,210 @@ export function EntryList({ onEntryClick, onUpdate }) {
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      gap: '12px',
+      gap: '16px',
       marginTop: '16px'
     },
     entryItem: {
-      padding: '16px',
-      borderRadius: '8px',
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-      border: '1px solid rgba(255, 255, 255, 0.06)',
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
       cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      position: 'relative'
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      position: 'relative',
+      overflow: 'hidden',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+      transform: 'translateY(0)'
     },
     entryItemHover: {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      borderColor: 'rgba(255, 255, 255, 0.1)'
+      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+      borderColor: 'rgba(255, 255, 255, 0.12)',
+      boxShadow: '0 8px 12px rgba(0, 0, 0, 0.08)',
+      transform: 'translateY(-2px)'
     },
     entryContent: {
-      fontSize: '14px',
-      lineHeight: '1.6',
-      color: 'rgba(255, 255, 255, 0.8)',
-      marginBottom: '12px',
+      fontSize: '15px',
+      lineHeight: '1.7',
+      color: 'rgba(255, 255, 255, 0.9)',
+      marginBottom: '16px',
       whiteSpace: 'pre-wrap',
-      wordBreak: 'break-word'
+      wordBreak: 'break-word',
+      position: 'relative',
+      zIndex: 1
     },
     entryMeta: {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      position: 'relative',
+      zIndex: 1
     },
     entryDate: {
-      fontSize: '12px',
-      color: 'rgba(255, 255, 255, 0.4)',
+      fontSize: '13px',
+      color: 'rgba(255, 255, 255, 0.5)',
       display: 'flex',
       alignItems: 'center',
-      gap: '6px'
+      gap: '8px',
+      padding: '4px 10px',
+      background: 'rgba(255, 255, 255, 0.06)',
+      borderRadius: '20px'
     },
     deleteButton: {
       background: 'transparent',
       border: 'none',
-      color: 'rgba(255, 255, 255, 0.3)',
+      color: 'rgba(255, 255, 255, 0.4)',
       cursor: 'pointer',
-      padding: '4px',
-      borderRadius: '4px',
+      padding: '8px',
+      borderRadius: '8px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       transition: 'all 0.2s ease'
     },
     deleteButtonHover: {
-      color: 'rgba(239, 68, 68, 0.8)',
-      background: 'rgba(239, 68, 68, 0.1)'
+      color: 'rgba(239, 68, 68, 0.9)',
+      background: 'rgba(239, 68, 68, 0.15)'
     },
     loadingMessage: {
-      padding: '24px 0',
+      padding: '40px 0',
       textAlign: 'center',
-      color: 'rgba(255, 255, 255, 0.4)',
-      fontSize: '14px'
+      color: 'rgba(255, 255, 255, 0.5)',
+      fontSize: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '12px'
     },
     errorMessage: {
-      padding: '16px',
-      borderRadius: '8px',
-      background: 'rgba(239, 68, 68, 0.1)',
-      border: '1px solid rgba(239, 68, 68, 0.2)',
+      padding: '20px',
+      borderRadius: '12px',
+      background: 'rgba(239, 68, 68, 0.15)',
+      border: '1px solid rgba(239, 68, 68, 0.25)',
       color: 'rgb(239, 68, 68)',
-      fontSize: '14px',
-      textAlign: 'center'
+      fontSize: '15px',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '8px'
     },
     emptyMessage: {
-      padding: '32px 0',
+      padding: '40px 0',
       textAlign: 'center',
-      color: 'rgba(255, 255, 255, 0.4)',
-      fontSize: '14px'
+      color: 'rgba(255, 255, 255, 0.5)',
+      fontSize: '15px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '12px'
+    },
+    entryBackground: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0.03,
+      background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(79, 70, 229, 0.3) 100%)',
+      pointerEvents: 'none',
+      transition: 'opacity 0.3s ease'
+    },
+    entryBackgroundHover: {
+      opacity: 0.06
     }
   };
 
   if (isLoading) {
-    return <div style={styles.loadingMessage}>Loading entries...</div>;
+    return (
+      <div style={styles.loadingMessage}>
+        <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
+        <span>Loading your journal entries...</span>
+      </div>
+    );
   }
 
   if (error) {
-    return <div style={styles.errorMessage}>{error}</div>;
+    return (
+      <div style={styles.errorMessage}>
+        <AlertTitle style={{ fontSize: '16px', fontWeight: '500', marginBottom: '4px' }}>Error Loading Entries</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </div>
+    );
   }
 
   if (entries.length === 0) {
-    return <div style={styles.emptyMessage}>No journal entries yet. Start writing!</div>;
+    return (
+      <div style={styles.emptyMessage}>
+        <BookText size={24} style={{ opacity: 0.6 }} />
+        <span>No journal entries yet. Start writing!</span>
+      </div>
+    );
   }
 
   return (
-    <div style={styles.container}>
-      {entries.map((entry) => {
+    <motion.div 
+      style={styles.container}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      {entries.map((entry, index) => {
         const truncatedContent = entry.content.length > 280
           ? `${entry.content.substring(0, 280)}...`
           : entry.content;
 
         return (
-          <div
+          <motion.div
             key={entry.id}
-            onClick={() => onEntryClick(entry)}
-            style={styles.entryItem}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = styles.entryItemHover.backgroundColor;
-              e.currentTarget.style.borderColor = styles.entryItemHover.borderColor;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = styles.entryItem.backgroundColor;
-              e.currentTarget.style.borderColor = styles.entryItem.borderColor;
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
           >
-            <div style={styles.entryContent}>{truncatedContent}</div>
-            <div style={styles.entryMeta}>
-              <div style={styles.entryDate}>
-                <History size={14} />
-                <span>{formatDate(entry.created_at)}</span>
+            <div
+              onClick={() => onEntryClick(entry)}
+              style={styles.entryItem}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = styles.entryItemHover.backgroundColor;
+                e.currentTarget.style.borderColor = styles.entryItemHover.borderColor;
+                e.currentTarget.style.boxShadow = styles.entryItemHover.boxShadow;
+                e.currentTarget.style.transform = styles.entryItemHover.transform;
+                e.currentTarget.querySelector('[data-bg]').style.opacity = styles.entryBackgroundHover.opacity;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = styles.entryItem.backgroundColor;
+                e.currentTarget.style.borderColor = styles.entryItem.borderColor;
+                e.currentTarget.style.boxShadow = styles.entryItem.boxShadow;
+                e.currentTarget.style.transform = styles.entryItem.transform;
+                e.currentTarget.querySelector('[data-bg]').style.opacity = styles.entryBackground.opacity;
+              }}
+            >
+              <div data-bg style={styles.entryBackground}></div>
+              <div style={styles.entryContent}>{truncatedContent}</div>
+              <div style={styles.entryMeta}>
+                <div style={styles.entryDate}>
+                  <History size={14} />
+                  <span>{formatDate(entry.created_at)}</span>
+                </div>
+                <button
+                  onClick={(e) => deleteEntry(entry.id, e)}
+                  style={styles.deleteButton}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = styles.deleteButtonHover.color;
+                    e.currentTarget.style.background = styles.deleteButtonHover.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = styles.deleteButton.color;
+                    e.currentTarget.style.background = styles.deleteButton.background;
+                  }}
+                  aria-label="Delete entry"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button
-                onClick={(e) => deleteEntry(entry.id, e)}
-                style={styles.deleteButton}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = styles.deleteButtonHover.color;
-                  e.currentTarget.style.background = styles.deleteButtonHover.background;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = styles.deleteButton.color;
-                  e.currentTarget.style.background = styles.deleteButton.background;
-                }}
-                aria-label="Delete entry"
-              >
-                <Trash2 size={16} />
-              </button>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 } 

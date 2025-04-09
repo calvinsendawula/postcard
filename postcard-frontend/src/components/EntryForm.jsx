@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { supabase } from '../client';
+import { supabase } from '../lib/supabaseClient';
 import { Send } from 'lucide-react';
 
 export function EntryForm({ onEntryAdded }) {

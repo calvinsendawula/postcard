@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Search, History, Loader2 } from 'lucide-react';
-import { supabase } from '../client';
+import { supabase } from '../lib/supabaseClient';
 
 export function SearchArea() {
   const [searchQuery, setSearchQuery] = useState('');
