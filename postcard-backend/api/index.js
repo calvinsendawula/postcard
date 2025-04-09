@@ -12,6 +12,8 @@ app.use(express.json({ limit: '10mb' }));
 const GEMINI_MODEL_TEXT = "gemini-2.0-flash";
 const GEMINI_MODEL_EMBEDDING = "text-embedding-001";
 const EMBEDDING_DIMENSIONS = 384;
+const MATCH_THRESHOLD = 0.7; // Similarity threshold for RAG
+const MATCH_COUNT = 5; // Number of context results to fetch
 
 // --- Initialize Clients --- 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -27,9 +29,93 @@ if (!supabaseUrl || !supabaseServiceKey || !geminiApiKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const genAI = new GoogleGenAI({ apiKey: geminiApiKey });
 
-// --- Webhook Endpoint --- 
-// Vercel expects the export default for serverless functions
-export default async function handler(req, res) {
+// --- Helper Function for Query Handling --- 
+async function handleQuery(req, res) {
+    try {
+        const { query, userId } = req.body;
+
+        if (!query || !userId) {
+            return res.status(400).json({ error: "Missing 'query' or 'userId' in request body." });
+        }
+        console.log(`Handling query for user ${userId}: "${query}"`);
+
+        // 1. Generate embedding for the user query
+        console.log("Generating query embedding...");
+        let queryEmbedding;
+        try {
+            const embeddingResponse = await genAI.models.embedContent({
+                model: GEMINI_MODEL_EMBEDDING,
+                content: query,
+                taskType: "RETRIEVAL_QUERY" // Specify task type for query embedding
+            });
+            if (embeddingResponse?.embedding?.values?.length === EMBEDDING_DIMENSIONS) {
+                queryEmbedding = embeddingResponse.embedding.values;
+            } else {
+                throw new Error("Invalid query embedding structure received.");
+            }
+        } catch (embeddingError) {
+             console.error(`Error generating query embedding:`, embeddingError);
+             return res.status(500).json({ error: `Failed to generate query embedding: ${embeddingError.message}` });
+        }
+        console.log("Query embedding generated.");
+
+        // 2. Retrieve relevant entries from Supabase
+        console.log("Retrieving relevant documents...");
+        const { data: documents, error: rpcError } = await supabase.rpc('match_entries', {
+            query_embedding: queryEmbedding,
+            requesting_user_id: userId,
+            match_threshold: MATCH_THRESHOLD,
+            match_count: MATCH_COUNT
+        });
+
+        if (rpcError) {
+            console.error("Error calling match_entries RPC:", rpcError);
+            return res.status(500).json({ error: `Failed to retrieve documents: ${rpcError.message}` });
+        }
+        console.log(`Retrieved ${documents?.length || 0} documents.`);
+
+        // 3. Construct prompt for synthesis
+        const contextText = documents && documents.length > 0
+            ? documents.map((doc, index) => `Document ${index + 1} (Similarity: ${doc.similarity.toFixed(4)}):\n${doc.content}`).join("\n\n")
+            : "No relevant documents found.";
+        
+        const synthesisPrompt = `Based on the following context documents retrieved from a personal knowledge base, answer the user's query.\nSynthesize the information from the documents to provide a concise and relevant answer. Do not simply list the documents. If the documents don't provide a sufficient answer, say so.\n\nContext Documents:\n---\n${contextText}\n---\n\nUser Query:\n${query}\n\nAnswer:`;
+
+        // 4. Call Gemini for synthesis
+        console.log("Synthesizing answer...");
+        let synthesizedAnswer = "Sorry, I couldn't generate an answer."; // Default fallback
+        try {
+            const generationResponse = await genAI.models.generateContent({
+                model: GEMINI_MODEL_TEXT,
+                contents: synthesisPrompt,
+                // generationConfig: { // Optional config like temperature
+                //     temperature: 0.7 
+                // }, 
+            });
+            const responseText = generationResponse?.candidates?.[0]?.content?.parts?.[0]?.text || generationResponse?.text;
+            if (responseText) {
+                 synthesizedAnswer = responseText;
+            } else {
+                console.warn("Received no text response from Gemini for synthesis.");
+            }
+        } catch (synthesisError) {
+             console.error("Error during synthesis:", synthesisError);
+             synthesizedAnswer = "An error occurred while synthesizing the answer.";
+        }
+
+        console.log("Synthesis complete.");
+        // 5. Return the synthesized answer
+        return res.status(200).json({ answer: synthesizedAnswer });
+
+    } catch (error) {
+        console.error("Unhandled error in query handler:", error);
+        return res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+}
+
+// --- Main Webhook Handler (from previous steps) --- 
+// Renamed to handleWebhook for clarity
+async function handleWebhook(req, res) {
     // Only accept POST requests
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
@@ -197,6 +283,25 @@ export default async function handler(req, res) {
         console.error("Unhandled error in webhook handler:", error);
         // Generic error response for unexpected issues
         return res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+}
+
+// --- Vercel Serverless Function Router --- 
+export default function handler(req, res) {
+    // Route requests based on URL path
+    if (req.url.startsWith('/api/query')) {
+        // Handle query requests
+        return handleQuery(req, res);
+    } else {
+        // Assume other POST requests are webhooks (or root path)
+        // GET requests to root handled by app.get below
+        if (req.method === 'POST') {
+             return handleWebhook(req, res);
+        } else {
+            // Handle other methods or paths if needed, or return 404
+             res.setHeader('Allow', 'POST, GET');
+             return res.status(404).send('Not Found');
+        }
     }
 }
 
