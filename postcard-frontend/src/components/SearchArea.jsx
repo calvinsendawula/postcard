@@ -4,8 +4,8 @@ import { Button } from "./ui/button";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Loader2 } from "lucide-react";
-import { SearchIcon } from "lucide-react";
+import { Loader2, SearchIcon, Bot, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function SearchArea() {
   const { user } = useAuth();
@@ -53,59 +53,92 @@ export function SearchArea() {
   };
 
   return (
-    <div className="bg-card rounded-lg shadow-sm p-6 border space-y-5">
-      <h2 className="text-xl font-semibold">Ask Your Knowledge Base</h2>
-      <form onSubmit={handleSearch} className="flex w-full items-center space-x-3">
-        <div className="relative flex-grow">
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="What did I work on last week?"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            disabled={isLoading}
-            className="pl-10 h-11 text-base"
-          />
-        </div>
-        <Button 
-          type="submit" 
-          disabled={isLoading || !query.trim()}
-          className="px-6 h-11"
-        >
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isLoading ? 'Asking...' : 'Ask'}
-        </Button>
-      </form>
-
-      {/* Display Results or Errors */} 
-      {isLoading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
-            <p className="text-sm text-muted-foreground">Searching your entries...</p>
-          </div>
-        </div>
-      )}
+    <div className="relative">
+      <div className="flex items-center gap-2 mb-6">
+        <Bot size={20} className="text-primary" />
+        <h2 className="text-xl font-semibold">Ask Your Journal</h2>
+      </div>
       
-      {error && (
-        <Alert variant="destructive" className="mt-4 border shadow-sm">
-          <AlertTitle className="font-medium">Search Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      {result && !isLoading && (
-        <Card className="mt-4 bg-card border shadow-sm">
-          <CardHeader className="pb-2 border-b">
-            <CardTitle className="text-lg font-medium">Answer</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap text-base">
-              {result}
+      <div className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm overflow-hidden">
+        <form onSubmit={handleSearch} className="p-4">
+          <div className="flex w-full gap-3">
+            <div className="relative flex-grow">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="e.g. 'What did I work on last week?'"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                disabled={isLoading}
+                className="pl-9 h-10 bg-background/50 rounded-lg border-input/30 focus:border-primary/50"
+              />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <Button 
+              type="submit" 
+              disabled={isLoading || !query.trim()}
+              className="rounded-lg h-10 px-4 flex gap-2 items-center bg-primary text-primary-foreground shrink-0 shadow-sm"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              <span>{isLoading ? 'Asking...' : 'Ask'}</span>
+            </Button>
+          </div>
+        </form>
+
+        {isLoading && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="px-4 pb-4"
+          >
+            <div className="w-full rounded-lg bg-muted/40 border border-border/30 p-6 flex flex-col items-center justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse"></div>
+                <Loader2 className="h-8 w-8 animate-spin text-primary relative z-10 mb-3" />
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">Searching your journal entries...</p>
+            </div>
+          </motion.div>
+        )}
+        
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="px-4 pb-4"
+          >
+            <Alert variant="destructive" className="border rounded-lg shadow-sm">
+              <AlertTitle className="flex items-center gap-2 font-medium">
+                <span>Search Error</span>
+              </AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+        
+        {result && !isLoading && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="px-4 pb-4"
+          >
+            <div className="w-full rounded-lg bg-background border border-border p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Bot size={16} className="text-primary" />
+                <h3 className="font-semibold text-sm">Journal Response</h3>
+              </div>
+              <div className="pl-6 border-l-2 border-primary/20 py-1">
+                <div className="prose dark:prose-invert text-foreground/90 max-w-none prose-p:leading-relaxed prose-p:my-3">
+                  {result}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 } 
