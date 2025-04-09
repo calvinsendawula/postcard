@@ -1,214 +1,149 @@
-import React from 'react';
-import { EntryList } from './components/EntryList';
-import { EntryForm } from './components/EntryForm';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
-import { TextInputArea } from "./components/TextInputArea";
-import { SearchArea } from "./components/SearchArea";
-import { ModeToggle } from "./components/ModeToggle";
-import { LogOut, Loader2 } from "lucide-react";
+import { TextInputArea } from './components/TextInputArea';
+import { EntryList } from './components/EntryList';
+import { SearchArea } from './components/SearchArea';
+import { Loader2, LogOut } from 'lucide-react';
 
-function App() {
-  const [entries, setEntries] = React.useState([]);
-  const [selectedEntry, setSelectedEntry] = React.useState(null);
-  const [user, setUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+function AppContent() {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  // Add animation to head
-  React.useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.innerHTML = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .spin {
-        animation: spin 1s linear infinite;
-      }
-    `;
-    document.head.appendChild(styleElement);
-    
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
+  useEffect(() => {
+    setLoading(authLoading);
+  }, [authLoading]);
 
-  React.useEffect(() => {
-    // Check for active session
-    const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+  useEffect(() => {
+    if (!authLoading) {
       setLoading(false);
-    };
-
-    checkSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleEntryClick = (entry) => {
-    setSelectedEntry(entry);
-  };
-
-  const handleEntryAdded = (newEntry) => {
-    setEntries([newEntry, ...entries]);
-  };
-
-  const handleEntriesUpdate = (updatedEntries) => {
-    setEntries(updatedEntries);
-    // If the selected entry was deleted, clear the selection
-    if (selectedEntry && !updatedEntries.find(e => e.id === selectedEntry.id)) {
-      setSelectedEntry(null);
     }
+  }, [authLoading]);
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
-
-  // Simple inline styles for the app UI
   const styles = {
-    container: {
+    '@global': {
+      body: {
+        margin: 0,
+        fontFamily: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif`,
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
+        background: 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)',
+        color: '#f0f0f0',
+        minHeight: '100vh',
+      },
+      '*': {
+        boxSizing: 'border-box'
+      },
+      '::selection': {
+        background: 'rgba(124, 58, 237, 0.3)',
+        color: '#fff'
+      }
+    },
+    loadingOverlay: {
+      position: 'fixed',
+      inset: 0,
       display: 'flex',
       flexDirection: 'column',
-      minHeight: '100vh',
-      width: '100%',
-      background: '#1a1a1a',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(10, 10, 10, 0.8)',
+      backdropFilter: 'blur(4px)',
+      zIndex: 100,
       color: 'white'
     },
-    loadingContainer: {
-      width: '100%',
-      height: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#1a1a1a',
-      color: 'white',
-      flexDirection: 'column',
-      gap: '16px'
+    loadingText: {
+      marginTop: '16px',
+      fontSize: '16px',
+      opacity: 0.8
     },
-    header: {
-      position: 'sticky',
-      top: 0,
-      zIndex: 40,
-      width: '100%',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      background: 'rgba(26, 26, 26, 0.8)',
-      backdropFilter: 'blur(10px)'
-    },
-    headerContent: {
-      display: 'flex',
-      height: '64px',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      maxWidth: '1000px',
-      margin: '0 auto',
-      padding: '0 20px'
-    },
-    logo: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      textDecoration: 'none'
-    },
-    logoIcon: {
-      width: '36px',
-      height: '36px',
-      borderRadius: '8px',
-      background: '#7c3aed',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: '18px'
-    },
-    logoText: {
-      fontWeight: '600',
-      fontSize: '18px',
-      color: 'white'
-    },
-    nav: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '16px'
-    },
-    userEmail: {
-      fontSize: '14px',
-      color: 'rgba(255, 255, 255, 0.6)',
-      padding: '6px 12px',
-      background: 'rgba(255, 255, 255, 0.05)',
-      borderRadius: '20px',
-      border: '1px solid rgba(255, 255, 255, 0.1)'
-    },
-    signOutButton: {
-      background: 'transparent',
-      border: 'none',
-      color: 'rgba(255, 255, 255, 0.6)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '8px',
-      borderRadius: '50%'
-    },
-    main: {
-      flex: 1,
-      width: '100%',
-      position: 'relative',
-      zIndex: 1
-    },
-    mainContent: {
+    appContainer: {
       maxWidth: '800px',
       margin: '0 auto',
-      padding: '32px 20px'
-    },
-    mainContentInner: {
+      padding: '32px 24px',
+      minHeight: '100vh',
       display: 'flex',
-      flexDirection: 'column',
-      gap: '32px'
+      flexDirection: 'column'
+    },
+    headerContainer: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '32px',
+      paddingBottom: '16px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+    },
+    headerTitle: {
+      fontSize: '24px',
+      fontWeight: '600',
+      color: 'white'
+    },
+    headerActions: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px'
+    },
+    signOutButton: {
+        background: 'rgba(255, 255, 255, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        color: 'rgba(255, 255, 255, 0.8)',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '14px',
+        fontWeight: '500',
+        transition: 'all 0.2s ease'
+    },
+    signOutButtonHover: {
+        background: 'rgba(255, 255, 255, 0.15)',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        color: 'white'
+    },
+    mainContent: {
+      flexGrow: 1
     },
     footer: {
-      width: '100%',
+      marginTop: '48px',
+      paddingTop: '24px',
       borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-      padding: '24px 0',
-      marginTop: '32px',
-      background: 'rgba(26, 26, 26, 0.5)',
-      backdropFilter: 'blur(5px)'
-    },
-    footerContent: {
-      maxWidth: '1000px',
-      margin: '0 auto',
-      padding: '0 20px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '16px',
       textAlign: 'center',
-      color: 'rgba(255, 255, 255, 0.4)',
-      fontSize: '14px'
-    },
-    journalHeading: {
-      fontSize: '20px',
-      fontWeight: '600',
-      marginBottom: '16px',
-      color: 'white'
+      fontSize: '13px',
+      color: 'rgba(255, 255, 255, 0.5)'
     }
   };
+
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    let cssText = '';
+    if (styles['@global']) {
+      for (const selector in styles['@global']) {
+        if (Object.hasOwnProperty.call(styles['@global'], selector)) {
+          cssText += `${selector} { ${Object.entries(styles['@global'][selector]).map(([prop, val]) => `${prop.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${val};`).join('')} }\n`;
+        }
+      }
+    }
+    styleElement.textContent = cssText;
+    document.head.appendChild(styleElement);
+    return () => {
+        if (styleElement.parentNode === document.head) {
+             document.head.removeChild(styleElement);
+        }
+    };
+  }, []);
 
   if (loading) {
     return (
-      <div style={styles.loadingContainer}>
+      <div style={styles.loadingOverlay}>
         <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
-        <div>Loading your entries...</div>
+        <div style={styles.loadingText}>Initializing...</div>
       </div>
     );
   }
@@ -218,64 +153,40 @@ function App() {
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <a href="/" style={styles.logo}>
-            <div style={styles.logoIcon}>P</div>
-            <span style={styles.logoText}>Postcard</span>
-          </a>
-          
-          <nav style={styles.nav}>
-            <div style={styles.userEmail}>
-              {user?.email}
-            </div>
-            
-            <ModeToggle />
-            
-            <button 
-              onClick={signOut} 
-              style={styles.signOutButton}
-              title="Sign Out"
-            >
-              <LogOut size={18} />
-            </button>
-          </nav>
+    <div style={styles.appContainer}>
+      <div style={styles.headerContainer}>
+        <h1 style={styles.headerTitle}>Postcard</h1>
+        <div style={styles.headerActions}>
+          <button 
+            onClick={handleSignOut} 
+            style={styles.signOutButton}
+            onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.signOutButtonHover)}
+            onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.signOutButton)}
+          >
+             <LogOut size={16} />
+             <span>Sign Out</span>
+          </button>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content */}
-      <main style={styles.main}>
-        <div style={styles.mainContent}>
-          <div style={styles.mainContentInner}>
-            <SearchArea />
-            
-            <TextInputArea />
-            
-            <div>
-              <h2 style={styles.journalHeading}>Your Entries</h2>
-              <EntryList 
-                onEntryClick={handleEntryClick} 
-                onUpdate={handleEntriesUpdate}
-              />
-            </div>
-          </div>
-        </div>
+      <main style={styles.mainContent}>
+        <TextInputArea /> 
+        <SearchArea /> 
+        <EntryList />
       </main>
 
-      {/* Footer */}
       <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <p>
-            Built with AI-powered note taking
-          </p>
-          <p>
-            © {new Date().getFullYear()} Postcard
-          </p>
-        </div>
+        © {new Date().getFullYear()} Postcard App
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
