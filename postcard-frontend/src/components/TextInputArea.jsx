@@ -44,19 +44,28 @@ export function TextInputArea() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Textarea
-        placeholder="What did you work on today? What problems did you solve?"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={5} // Start with a reasonable number of rows
-        className="resize-y" // Allow vertical resizing
-        disabled={isLoading}
-      />
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      <Button type="submit" disabled={isLoading || !text.trim()}>
-        {isLoading ? 'Processing...' : 'Add Entry'}
-      </Button>
-    </form>
+    <div className="bg-card rounded-lg shadow-sm p-6 border">
+      <h2 className="text-xl font-semibold mb-4">Add New Entry</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Textarea
+          placeholder="What did you work on today? What problems did you solve?"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={6}
+          className="resize-y w-full p-3 text-base focus:ring-2 focus:ring-primary/50"
+          disabled={isLoading}
+        />
+        {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+        <div className="flex justify-end">
+          <Button 
+            type="submit" 
+            disabled={isLoading || !text.trim()}
+            className="px-6 py-2"
+          >
+            {isLoading ? 'Processing...' : 'Add Entry'}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 } 

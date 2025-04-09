@@ -51,20 +51,20 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background px-4">
-       <div className="absolute top-4 right-4">
-          <ModeToggle />
-       </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Postcard</CardTitle>
-          <CardDescription>Sign in or create an account to continue</CardDescription>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="absolute top-6 right-6">
+        <ModeToggle />
+      </div>
+      <Card className="w-full max-w-md mx-4 shadow-lg">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-3xl font-bold text-center">Welcome to Postcard</CardTitle>
+          <CardDescription className="text-center text-base">Sign in or create an account to continue</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6 pt-4">
           <form id="login-form" onSubmit={handleLogin}>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
+            <div className="grid w-full items-center gap-6">
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="email" className="text-base">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -73,10 +73,11 @@ export function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="h-11"
                 />
               </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Password</Label>
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="password" className="text-base">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -85,17 +86,28 @@ export function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  className="h-11"
                 />
               </div>
-              {error && <p className="text-sm text-destructive text-center">{error}</p>}
+              {error && <p className="text-sm text-destructive text-center mt-2">{error}</p>}
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
-          <Button className="w-full sm:w-auto" variant="outline" onClick={handleSignUp} disabled={loading || !email || !password}>
+        <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-4 pt-2 pb-6 px-6">
+          <Button 
+            className="w-full sm:w-auto text-base py-5" 
+            variant="outline" 
+            onClick={handleSignUp} 
+            disabled={loading || !email || !password}
+          >
             {loading ? 'Processing...' : 'Sign Up'}
           </Button>
-          <Button className="w-full sm:w-auto" type="submit" form="login-form" disabled={loading || !email || !password}>
+          <Button 
+            className="w-full sm:w-auto text-base py-5" 
+            type="submit" 
+            form="login-form" 
+            disabled={loading || !email || !password}
+          >
             {loading ? 'Processing...' : 'Sign In'}
           </Button>
         </CardFooter>

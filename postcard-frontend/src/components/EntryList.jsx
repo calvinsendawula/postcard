@@ -85,35 +85,63 @@ export function EntryList() {
 
   if (loading) {
     return (
-        <div className="flex items-center justify-center pt-8">
-             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="bg-card rounded-lg border shadow-sm p-8">
+        <div className="flex flex-col items-center justify-center py-8">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Loading your entries...</p>
         </div>
+      </div>
     );
   }
 
   if (error) {
-    return <Alert variant="destructive" className="mt-4"><AlertTitle>Error Loading Entries</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
+    return (
+      <Alert variant="destructive" className="mt-4 border shadow-sm">
+        <AlertTitle className="font-semibold">Error Loading Entries</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   }
 
   if (entries.length === 0) {
-    return <Alert><AlertDescription>No entries yet. Add one above!</AlertDescription></Alert>;
+    return (
+      <Alert className="border shadow-sm p-6">
+        <AlertTitle className="font-semibold mb-2">No Entries Found</AlertTitle>
+        <AlertDescription>You haven't added any entries yet. Use the form above to get started!</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold tracking-tight">Your Entries</h2>
-      {entries.map((entry) => (
-        <Card key={entry.id} className="overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-xs">{new Date(entry.created_at).toLocaleString()}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
-              {entry.processed_text || entry.raw_text}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold tracking-tight">Your Entries</h2>
+        <span className="text-sm text-muted-foreground">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</span>
+      </div>
+      
+      <div className="grid gap-6">
+        {entries.map((entry) => (
+          <Card key={entry.id} className="overflow-hidden border shadow-sm hover:shadow transition-shadow">
+            <CardHeader className="pb-2 bg-muted/40">
+              <CardDescription className="text-sm font-medium">
+                {new Date(entry.created_at).toLocaleString(undefined, {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4 pb-6">
+              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                {entry.processed_text || entry.raw_text}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 } 
