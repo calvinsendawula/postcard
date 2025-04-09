@@ -208,7 +208,7 @@ function App() {
     return (
       <div style={styles.loadingContainer}>
         <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
-        <div>Loading your journal...</div>
+        <div>Loading your entries...</div>
       </div>
     );
   }
@@ -254,7 +254,7 @@ function App() {
             <TextInputArea />
             
             <div>
-              <h2 style={styles.journalHeading}>Your Journal</h2>
+              <h2 style={styles.journalHeading}>Your Entries</h2>
               <EntryList 
                 onEntryClick={handleEntryClick} 
                 onUpdate={handleEntriesUpdate}
@@ -268,7 +268,7 @@ function App() {
       <footer style={styles.footer}>
         <div style={styles.footerContent}>
           <p>
-            Built with AI-powered journaling
+            Built with AI-powered note taking
           </p>
           <p>
             © {new Date().getFullYear()} Postcard
