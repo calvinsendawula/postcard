@@ -20,7 +20,7 @@ export function SearchArea() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('https://postcard-git-main-calvins-projects-5a83f765.vercel.app/api/query', {
+      const response = await fetch('https://postcard-backend-api.vercel.app/api/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,12 @@ export function SearchArea() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData = { error: `Search failed: ${response.status} ${response.statusText}` };
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          console.error("Response was not valid JSON:", jsonError);
+        }
         throw new Error(errorData.error || `Search failed with status: ${response.status}`);
       }
 
